@@ -77,7 +77,8 @@ DATABASES = {
         'NAME': 'Poll_DB',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
+        #'HOST': '127.0.0.1',
+        'HOST': os.environ['POSTGRES_HOST'],
         'PORT': 5432,
     }
 }
