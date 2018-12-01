@@ -13,6 +13,7 @@ class IndexView(views.APIView):
     # -------------------------------------------------------------------------
     def get(self, request):
         return response.Response({'resources': [
+            request.build_absolute_uri(reverse('poll:create_poll')),
         ]})
 
 # =============================================================================
