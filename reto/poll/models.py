@@ -44,6 +44,7 @@ class PollVote(models.Model):
 
     option = models.ForeignKey(PollOption, null=False, blank=False,related_name='option',on_delete=models.DO_NOTHING)
     vote_date = models.DateTimeField(null=False, blank=False, default=timezone.now, editable=False)
+    ip = models.CharField(max_length=100, blank=True, default='')
 
     # -----------------------------------------------------------------------------------
     def __str__(self):

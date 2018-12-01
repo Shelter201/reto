@@ -70,6 +70,15 @@ class VoteView(views.APIView):
         }
     """
     # -------------------------------------------------------------------------
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    # -------------------------------------------------------------------------
     def put(self, request, poll_id=None):
         """ Vote
         """
@@ -93,10 +102,17 @@ class VoteView(views.APIView):
                         response_json = {'messages': u'Incorrect poll option'}
                         http_status = status.HTTP_404_NOT_FOUND
                     else:
-                        vote = PollVote(option=poll_option[0])
-                        vote.save()
-                        response_json = {'messages': u'OK',}
-                        http_status = status.HTTP_200_OK
+                        ip=self.get_client_ip(request)
+                        print(ip)
+                        vote_already=PollVote.objects.filter(option__poll=poll[0],ip=ip)
+                        if len(vote_already) > 0:
+                            response_json = {'messages': u'You already vote for this poll', 'ip':ip}
+                            http_status = status.HTTP_406_NOT_ACCEPTABLE
+                        else:
+                            vote = PollVote(option=poll_option[0],ip=ip)
+                            vote.save()
+                            response_json = {'messages': u'OK', 'ip':ip}
+                            http_status = status.HTTP_200_OK
 
         except IntegrityError:
             response_json = {'messages': u'We find a trouble with your vote'}
