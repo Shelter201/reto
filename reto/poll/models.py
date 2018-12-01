@@ -57,3 +57,38 @@ class PollVote(models.Model):
         verbose_name_plural = _('Votes')
 
 # =======================================================================================
+class PollStat(models.Model):
+
+    option = models.ForeignKey(PollOption, null=False, blank=False, related_name='stat', on_delete=models.DO_NOTHING)
+    uuid = models.UUIDField(null=False, blank=False, default=uuid.uuid4, editable=False, db_index=True)
+    votes = models.IntegerField(null=False, blank=False, default=0)
+
+    # -----------------------------------------------------------------------------------
+    def __str__(self):
+        return '{} {}'.format(self.option_id,self.votes)
+
+    # -----------------------------------------------------------------------------------
+    class Meta:
+        db_table = 'poll_stat'
+        verbose_name = _('Stat')
+        verbose_name_plural = _('Stats')
+
+# =======================================================================================
+class PollHourStat(models.Model):
+
+    option = models.ForeignKey(PollOption, null=False, blank=False, related_name='hourstat', on_delete=models.DO_NOTHING)
+    uuid = models.UUIDField(null=False, blank=False, default=uuid.uuid4, editable=False, db_index=True)
+    votes = models.IntegerField(null=False, blank=False, default=0)
+    vote_hour = models.DateTimeField(null=False, blank=False)
+
+    # -----------------------------------------------------------------------------------
+    def __str__(self):
+        return '{} {} {}'.format(self.option_id,self.vote_hour,self.votes)
+
+    # -----------------------------------------------------------------------------------
+    class Meta:
+        db_table = 'poll_hour_stat'
+        verbose_name = _('Hour Stat')
+        verbose_name_plural = _('Hour Stats')
+
+# =======================================================================================
