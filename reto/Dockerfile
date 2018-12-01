@@ -12,5 +12,4 @@ RUN pip install -r /requirements.txt
 
 EXPOSE $BIND_PORT
 
-CMD [ "python", "manage.py","migrate" ]
 

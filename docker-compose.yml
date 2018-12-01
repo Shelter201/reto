@@ -3,22 +3,16 @@ services:
   app:
     build:
       context: ./reto
-    depends_on:
-      - postgres_db
+    command: bash -c "sleep 5 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     environment:
-      - POSTGRES_HOST=postgres_db
+      - POSTGRES_HOST=db
+    depends_on:
+      - db
     ports:
       - "8000:8000"
-  postgres_db:
+  db:
     image: postgres
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgress
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=Poll_DB
-    ports:
-      - "5532:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-volumes: 
-  pgdata:
-
