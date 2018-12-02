@@ -6,6 +6,7 @@ from rest_framework import views, response
 from django.db import IntegrityError
 from poll.models import *
 from django.db.models import F
+from poll import serializers
 
 # Create your views here.
 
@@ -30,34 +31,69 @@ class PollView(views.APIView):
         }
     """
     # -------------------------------------------------------------------------
-    def put(self, request):
+    def put(self, request, poll_id=None):
         """ Create a new Poll
         """
-        name = request.data.get('name')
-        options = request.data.get('options')
-        try:
-            print('Recibido: {} {}'.format(name, options))
-            if not name or not options:
-                response_json = {'messages': u'You need to provide a name and a set of poll options', 'poll_id': 0}
-                http_status = status.HTTP_400_BAD_REQUEST
-            else:
-                poll = Poll(name=name)
-                poll.save()
-                for option in options:
-                    opt = PollOption(poll=poll, option_name=option)
-                    opt.save()
-                http_status = status.HTTP_200_OK
-                response_json = {'messages': u'OK', 'poll_id': poll.id}
-
-        except IntegrityError:
-            response_json = {'messages': u'We find a trouble with your request', 'poll_id': 0}
+        if poll_id:
+            response_json = {'messages': u'To create a poll, do not provide a poll_id' }
             http_status = status.HTTP_400_BAD_REQUEST
-        except Exception as e:
-            response_json = {'messages': e, 'poll_id': 0}
-            http_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+        else:
+            name = request.data.get('name')
+            options = request.data.get('options')
+            try:
+                print('Recibido: {} {}'.format(name, options))
+                if not name or not options:
+                    response_json = {'messages': u'You need to provide a name and a set of poll options', 'poll_id': 0}
+                    http_status = status.HTTP_400_BAD_REQUEST
+                else:
+                    poll = Poll(name=name)
+                    poll.save()
+                    for option in options:
+                        opt = PollOption(poll=poll, option_name=option)
+                        opt.save()
+                    http_status = status.HTTP_200_OK
+                    response_json = {'messages': u'OK', 'poll_id': poll.id}
+
+            except IntegrityError:
+                response_json = {'messages': u'We find a trouble with your request', 'poll_id': 0}
+                http_status = status.HTTP_400_BAD_REQUEST
+            except Exception as e:
+                response_json = {'messages': e, 'poll_id': 0}
+                http_status = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         return response.Response(response_json, status=http_status)
 
+    # -------------------------------------------------------------------------
+    def get(self, request, poll_id=None):
+
+        if not poll_id:
+            response_json = {'messages': u'To get a stat, you need to provide a poll_id'}
+            http_status = status.HTTP_400_BAD_REQUEST
+        else:
+            try:
+                poll = Poll.objects.filter(id=poll_id)
+                if(len(poll) == 0):
+                    response_json = {'messages': u'Incorrect poll_id'}
+                    http_status = status.HTTP_404_NOT_FOUND
+                else:
+                    poll=poll[0]
+                    poll_stat = PollStat.objects.filter(option__poll=poll)
+                    if(len(poll_stat) == 0):
+                        response_json = {'messages': u'No one vote already'}
+                        http_status = status.HTTP_204_NO_CONTENT
+                    else:
+                        stat_serializer = serializers.StatSerializer(poll_stat, many=True)
+                        response_json = { 'poll': poll.name, 'stats': stat_serializer.data }
+                        http_status = status.HTTP_200_OK
+            except IntegrityError:
+                response_json = {'messages': u'We find a trouble with your vote'}
+                http_status = status.HTTP_400_BAD_REQUEST
+            except Exception as e:
+                print(e)
+                response_json = {'messages': u'Error'}
+                http_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        return response.Response(response_json, status=http_status)
 
 # =============================================================================
 
