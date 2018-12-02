@@ -10,4 +10,5 @@ urlpatterns = [
     path(r'poll/', views.PollView.as_view(), name='create_poll'),
     path(r'poll/<int:poll_id>/', views.PollView.as_view(), name='stat'),
     path(r'poll/<int:poll_id>/vote/', views.VoteView.as_view(), name='vote'),
+    path(r'poll/<int:poll_id>/vote/hourly', views.HourVoteView.as_view(), name='vote_hour'),
 ]
