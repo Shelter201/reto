@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
     # -------------------------------------------------------------------------
     def handle(self, *args, **options):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=os.environ['RABBITMQ_HOST']))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(heartbeat_interval=0,host=os.environ['RABBITMQ_HOST']))
         channel = connection.channel()
 
         channel.queue_declare(queue='polls')
