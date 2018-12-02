@@ -27,7 +27,7 @@ class Command(BaseCommand):
                              vote_hour=vote['date'].replace(minute=0, second=0, microsecond=0), votes=1).save()
             else:
                 poll_h_stat.update(votes=F('votes') + 1)
-
+                
     # -------------------------------------------------------------------------
     def callback(self, ch, method, properties, body):
         x=json.loads(body)
@@ -41,10 +41,10 @@ class Command(BaseCommand):
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
         channel = connection.channel()
 
-        channel.queue_declare(queue='hello')
+        channel.queue_declare(queue='votes')
 
         channel.basic_consume(self.callback,
-                              queue='hello',
+                              queue='votes',
                               no_ack=True)
 
         print(' [*] Waiting for messages. To exit press CTRL+C')
