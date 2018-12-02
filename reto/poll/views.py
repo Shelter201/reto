@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from poll.models import *
 from django.db.models import F
 from poll import serializers
+from poll import channel
 
 # Create your views here.
 
@@ -175,6 +176,9 @@ class VoteView(views.APIView):
                             vote = PollVote(option=poll_option[0],ip=ip)
                             vote.save()
                             self.stats(vote.option.id, vote.vote_date)
+                            channel.basic_publish(exchange='',
+                                                  routing_key='hello',
+                                                  body='Hello Wolrd!')
                             response_json = {'messages': u'OK', 'ip':ip}
                             http_status = status.HTTP_200_OK
 
