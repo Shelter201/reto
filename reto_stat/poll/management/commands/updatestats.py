@@ -4,6 +4,7 @@ from django.db.models import F
 from datetime import datetime
 import pika
 import json
+import os
 
 
 class Command(BaseCommand):
@@ -38,7 +39,7 @@ class Command(BaseCommand):
 
     # -------------------------------------------------------------------------
     def handle(self, *args, **options):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=os.environ['RABBITMQ_HOST']))
         channel = connection.channel()
 
         channel.queue_declare(queue='votes')

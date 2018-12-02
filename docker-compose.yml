@@ -1,18 +1,40 @@
 version: '3.6'  
 services:  
-  app:
+  app_poll:
     build:
-      context: ./reto
-    command: bash -c "sleep 5 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+      context: ./reto_poll
+    command: bash -c "sleep 15 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     environment:
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=db_poll
+      - RABBITMQ_HOST=broker
     depends_on:
-      - db
+      - db_poll
+      - broker
     ports:
       - "8000:8000"
-  db:
+  db_poll:
     image: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=Poll_DB
+      - POSTGRES_DB=Poll_Vote_DB
+  app_stats:
+    build:
+      context: ./reto_stat
+    command: bash -c "./start_process.sh"
+    environment:
+      - POSTGRES_HOST=db_stats 
+      - RABBITMQ_HOST=broker
+    depends_on:
+      - db_stats
+      - broker
+    ports:
+      - "8001:8000"
+  db_stats:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=Poll_Stats_DB
+  broker:
+    image: rabbitmq:3
