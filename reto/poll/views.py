@@ -1,4 +1,5 @@
 # coding=utf-8
+import json
 from django.shortcuts import render
 from django.urls import reverse
 from rest_framework import status
@@ -8,6 +9,7 @@ from poll.models import *
 from django.db.models import F
 from poll import serializers
 from poll import channel
+from django.core.serializers.json import DjangoJSONEncoder
 
 # Create your views here.
 
@@ -117,32 +119,6 @@ class VoteView(views.APIView):
         return ip
 
     # -------------------------------------------------------------------------
-    def stats(self, option_id, vote_date):
-        option = PollOption.objects.filter(id=option_id)[0]
-        print(option)
-        poll_stat = PollStat.objects.filter(option=option)
-        print(poll_stat)
-        print('1')
-        if len(poll_stat) == 0:
-            print('2')
-            PollStat(option=option, votes=1).save()
-            print('3')
-            PollHourStat(option=option,
-                         vote_hour=vote_date.replace(minute=0, second=0, microsecond=0) ,votes=1).save()
-        else:
-            print('4')
-            poll_stat.update(votes=F('votes') + 1)
-            print('5')
-            poll_h_stat = PollHourStat.objects.filter(option=option,
-                                                      vote_hour=vote_date.replace(minute=0, second=0, microsecond=0))
-            if len(poll_h_stat) == 0:
-                print('6')
-                PollHourStat(option=option,
-                             vote_hour=vote_date.replace(minute=0, second=0, microsecond=0), votes=1).save()
-            else:
-                print('7')
-                poll_h_stat.update(votes=F('votes') + 1)
-    # -------------------------------------------------------------------------
     def put(self, request, poll_id=None):
         """ Vote
         """
@@ -175,11 +151,18 @@ class VoteView(views.APIView):
                         else:
                             vote = PollVote(option=poll_option[0],ip=ip)
                             vote.save()
-                            self.stats(vote.option.id, vote.vote_date)
+                            # self.stats(vote.option.id, vote.vote_date)
+                            serialized=json.dumps(
+                                {'id': vote.option.id, 'date': vote.vote_date},
+                                sort_keys=True,
+                                indent=1,
+                                cls=DjangoJSONEncoder
+                            )
+                            #print(serialized)
                             channel.basic_publish(exchange='',
                                                   routing_key='hello',
-                                                  body='Hello Wolrd!')
-                            response_json = {'messages': u'OK', 'ip':ip}
+                                                  body=serialized)
+                            response_json = {'messages': u'OK',}
                             http_status = status.HTTP_200_OK
 
         except IntegrityError:
