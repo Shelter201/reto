@@ -25,7 +25,7 @@ SECRET_KEY = 'm^9d+l7g4ik!j+9v+8_0!m!w9yhhax1n&n!t*y1y9$%9ytsvkm'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -75,8 +75,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'Poll_Vote_DB',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'USER': os.environ['POSTGRES_USER'],
+        'PASSWORD': os.environ['POSTGRES_PWD'],
         #'HOST': '127.0.0.1',
         'HOST': os.environ['POSTGRES_HOST'],
         'PORT': 5432,

@@ -3,9 +3,11 @@ services:
   app_poll:
     build:
       context: ./reto_poll
-    command: bash -c "sleep 15 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "sleep 30 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     environment:
       - POSTGRES_HOST=db_poll
+      - POSTGRES_USER=postgres
+      - POSTGRES_PWD=postgres
       - RABBITMQ_HOST=broker
     depends_on:
       - db_poll
@@ -22,6 +24,8 @@ services:
     command: bash -c "./start_process.sh"
     environment:
       - POSTGRES_HOST=db_stats 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PWD=postgres
       - RABBITMQ_HOST=broker
     depends_on:
       - db_stats
