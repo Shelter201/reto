@@ -15,6 +15,7 @@ PUT http://localhost/poll/
     "options" : ["","","","",""]
 }
 
+--------------------------------------
 
 Votar:
 
@@ -25,10 +26,14 @@ PUT http://localhost/poll/{id}/vote
 }
 
 
+--------------------------------------
+
 Resultados generales:
 
 GET http://localhost/poll/3/
 
+
+--------------------------------------
 
 Resultados por hora:
 
