@@ -10,8 +10,6 @@ services:
     depends_on:
       - db_poll
       - broker
-    ports:
-      - "8000:8000"
   db_poll:
     image: postgres
     environment:
@@ -28,8 +26,6 @@ services:
     depends_on:
       - db_stats
       - broker
-    ports:
-      - "8001:8000"
   db_stats:
     image: postgres
     environment:
@@ -38,3 +34,18 @@ services:
       - POSTGRES_DB=Poll_Stats_DB
   broker:
     image: rabbitmq:3
+  web:
+    image: nginx
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/nginx.conf.template
+    ports:
+      - "80:80"
+    depends_on:
+      - app_stats
+      - app_poll
+    environment:
+      - GET_HOST=app_stats
+      - PUT_HOST=app_poll
+      - THIS_HOST=web
+    command: /bin/bash -c "envsubst '$${GET_HOST},$${PUT_HOST},$${THIS_HOST}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
+
