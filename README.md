@@ -7,22 +7,32 @@ Ambas bases contienen la información de los nombres de las encuestas y las opci
 Ej.
 
 Crear encuesta:
+
 PUT http://localhost/poll/
+
 {
     "name" : "",
     "options" : ["","","","",""]
 }
 
+
 Votar:
+
 PUT http://localhost/poll/{id}/vote
+
 { 
     "option" : "" 
 }
 
+
 Resultados generales:
+
 GET http://localhost/poll/3/
 
+
 Resultados por hora:
+
 GET http://localhost/poll/3/vote/hourly/
+
 
 
