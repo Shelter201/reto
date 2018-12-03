@@ -30,14 +30,14 @@ PUT http://localhost/poll/{id}/vote
 
 Resultados generales:
 
-GET http://localhost/poll/3/
+GET http://localhost/poll/{id}/
 
 
 --------------------------------------
 
 Resultados por hora:
 
-GET http://localhost/poll/3/vote/hourly/
+GET http://localhost/poll/{id}/vote/hourly/
 
 
 
